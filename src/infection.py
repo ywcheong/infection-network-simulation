@@ -76,7 +76,9 @@ def GenerateRandomGraph(N, p):
     --------
     Generating 1000 people system with average edge count E ~ B(1000, 0.2) ~ N(20, 4.42**2)
 
-    >> graph = GenerateRandomGraph(1000, 0.02)
+    ```
+    graph = GenerateRandomGraph(1000, 0.02)
+    ```
     '''
     graph = [[] for _ in range(N)]
     for i in range(len(graph)):

@@ -66,10 +66,10 @@ SEIRD 모델은 다음과 같습니다.
 
 SEIRD 모델은 미분방정식 기반의 SEIRS 모델을 그래프 이론을 이용해 설명합니다. 이 시뮬레이션에서는 각각의 사람들을 정점, 서로 생활을 공유하기 때문에 질병을 감염시킬 위험이 있는 사람들을 간선으로 둡니다. 모든 사람들은 S, E, I, R, D 중 하나의 상태에 있으며, 1 단위시간이 지날 때마다 마르코프 체인에 따라 확률적으로 자신의 다음 상태가 결정됩니다. 예를 들어, 현재 Exposed 상태인 사람은 다음 단위시간에는 $\sigma$ 의 확률로 Infected, $\epsilon$ 의 확률로 Recovered, $1-\sigma-\epsilon$ 의 확률로 Exposed 상태가 됩니다.
 
-가장 주목해야 할 점은 $\beta^{*}$ 입니다. $\beta^{*}$ 는 하나의 값이 아니라 각 노드별로 다르게 결정되는 값입니다. 모든 Susceptible 노드는 해당 노드와 간선으로 연결된 노드 중에 현재 Infected 상태에 있는 노드가 하나 있을 때마다 $\beta$ 의 확률로 Exposed 상태로 바뀌되게 됩니다. 쉽게 설명하면 어떤 사람이 감염되는 이유는 친구 중에 감염된 사람이 있기 때문이며, 감염된 친구가 많을수록 그 사람도 감염되기 쉽다는 생각을 수학적으로 기술한 것입니다. 현재 그래프를 $G = (V, E)$ 라고 두면 어떤 노드 $v$ 에 대한 Infectious rate $\beta^*(G, v)$ 는 다음과 같습니다.
+가장 주목해야 할 점은 $\beta^\ast$ 입니다. $\beta^\ast$ 는 하나의 값이 아니라 각 노드별로 다르게 결정되는 값입니다. 모든 Susceptible 노드는 해당 노드와 간선으로 연결된 노드 중에 현재 Infected 상태에 있는 노드가 하나 있을 때마다 $\beta$ 의 확률로 Exposed 상태로 바뀌되게 됩니다. 쉽게 설명하면 어떤 사람이 감염되는 이유는 친구 중에 감염된 사람이 있기 때문이며, 감염된 친구가 많을수록 그 사람도 감염되기 쉽다는 생각을 수학적으로 기술한 것입니다. 현재 그래프를 $G = (V, E)$ 라고 두면 어떤 노드 $v$ 에 대한 Infectious rate $\beta^\ast(G, v)$ 는 다음과 같습니다.
 
 $$
-\beta^*(G, v) = 1 - \prod_{\substack{w \in \textrm{adj}(v) \cap I}}{(1 - \beta)}
+\beta^\ast(G, v) = 1 - \prod_{\substack{w \in \textrm{adj}(v) \cap I}}{(1 - \beta)}
 $$
 
 (TODO : Example simulation graph attachment)

@@ -320,31 +320,31 @@ def main():
     average_friends = 25
     p_PatientZero = 3
 
-    # p_kapa = 0.1 * 0.3
-    # p_beta = 0.2 * 0.3
-    # p_gamma = 0.2 * 0.3
-    # p_delta = 0.0002 * 0.3
-    # p_epsilon = 0.03 * 0.3
-    # p_lmbda = 0.02 * 0.3
-    # p_tau = 0.0001 * 0.3
+    # p_kapa = 
+    # p_beta = 
+    # p_gamma = 
+    # p_delta = 
+    # p_epsilon = 
+    # p_lmbda = 
+    # p_tau = 
 
     # # Simulation 1, Intuitively normal model
-    # p_kapa = 0.1 * 0.3
-    # p_beta = 0.2 * 0.3
-    # p_gamma = 0.2 * 0.3
-    # p_delta = 0.0002 * 0.3
-    # p_epsilon = 0.03 * 0.3
-    # p_lmbda = 0.02 * 0.3
-    # p_tau = 0.0001 * 0.3
+    # p_kapa = 
+    # p_beta = 
+    # p_gamma = 
+    # p_delta = 
+    # p_epsilon = 
+    # p_lmbda = 
+    # p_tau = 
 
     # # Simulation 2, Extremely high death rate(epsilon), little high rate of infection(kapa)
-    # p_kapa = 0.2 * 0.3
-    # p_beta = 0.2 * 0.3
-    # p_gamma = 0.2 * 0.3
-    # p_delta = 0.0002 * 0.3
-    # p_epsilon = 0.8
-    # p_lmbda = 0.02 * 0.3
-    # p_tau = 0.0001 * 0.3
+    # p_kapa = 
+    # p_beta = 
+    # p_gamma = 
+    # p_delta = 
+    # p_epsilon = 
+    # p_lmbda = 
+    # p_tau = 
 
     # Simulation 3, low rate of infection(kapa), high rate of immune loss(delta), no death(epsilon=0)
     p_kapa = 0.03 * 0.3
@@ -357,6 +357,9 @@ def main():
 
     Simulate(p_Population, p_Date, p_connRate, p_PatientZero, \
         (p_kapa, p_beta, p_gamma, p_delta, p_epsilon, p_lmbda, p_tau), animate=False, saveImage=False, saveVideo=True)
+
+def infect_simulation():
+    pass
 
 if __name__ == "__main__":
     main()

@@ -13,7 +13,7 @@ import matplotlib.animation as animation
 random.seed(1234)
 timestamp = int(time.time())
 
-S, Ic, If, Im, D = 0, 1, 2, 3, 4
+S, Ex, If, Re, D = 0, 1, 2, 3, 4
 ColorList = ['silver', 'gold', 'red', 'royalblue', 'black']
 
 def Event(*p):
@@ -27,16 +27,14 @@ def Event(*p):
     If one parameter p given
     --------
     Return True in p prob.
-
     Return False in 1-p prob.
 
     If multiple parameter p1, p2, ..., pn given
-    -------
-    return 1 in p1 prob.
-    return 2 in p2 prob.
-    ...
-    return n in pn prob.
-    return 0 in 1-p1-...-on prob.
+    --------
+    Return 1 in p1 prob.
+    Return 2 in p2 prob.
+    In same way, return n in pn prob.
+    Return 0 in 1-p1-...-on prob.
     '''
     assert len(p) != 0
     assert sum(p) <= 1
@@ -109,24 +107,24 @@ def OneStep(graph, statusByDate, dayData, probTuple):
                     QtV += 1
             alpha = 1 - (1-kapa)**QtV
             if Event(alpha+tau):
-                newStatusList[i] = Ic
-                OneDayData[Ic] += 1
+                newStatusList[i] = Ex
+                OneDayData[Ex] += 1
             else:
                 newStatusList[i] = S
                 OneDayData[S] += 1
-        elif stat == Ic:
+        elif stat == Ex:
             # beta to infected. lmbda to immune. Else Remain
             x = Event(beta, lmbda)
             if x == 0:
                 # Nothing changes
-                newStatusList[i] = Ic
-                OneDayData[Ic] += 1
+                newStatusList[i] = Ex
+                OneDayData[Ex] += 1
             elif x == 1:
                 newStatusList[i] = If
                 OneDayData[If] += 1
             elif x == 2:
-                newStatusList[i] = Im
-                OneDayData[Im] += 1
+                newStatusList[i] = Re
+                OneDayData[Re] += 1
         elif stat == If:
             # gamma to immune, epsilon to death. Else Remain
             x = Event(gamma, epsilon)
@@ -135,19 +133,19 @@ def OneStep(graph, statusByDate, dayData, probTuple):
                 newStatusList[i] = If
                 OneDayData[If] += 1
             elif x == 1:
-                newStatusList[i] = Im
-                OneDayData[Im] += 1
+                newStatusList[i] = Re
+                OneDayData[Re] += 1
             elif x == 2:
                 newStatusList[i] = D
                 OneDayData[D] += 1
-        elif stat == Im:
+        elif stat == Re:
             if Event(delta):
                 # losses immune
                 newStatusList[i] = S
                 OneDayData[S] += 1
             else:
-                newStatusList[i] = Im
-                OneDayData[Im] += 1
+                newStatusList[i] = Re
+                OneDayData[Re] += 1
         elif stat == D:
             # Nothing to do
             newStatusList[i] = D
@@ -223,7 +221,7 @@ def Simulate(N, period, connectionRate, patientZeroCount, probTuple, animate=Tru
     print("Plot prepareing...")
 
     ssspoint = 1
-    immuneList = dayData[Im]
+    immuneList = dayData[Re]
     for i in range(1, len(immuneList)-1):
         if immuneList[i] > immuneList[ssspoint] and immuneList[i-1] <= immuneList[i] >= immuneList[i+1]:
             ssspoint = i
@@ -268,9 +266,9 @@ def Simulate(N, period, connectionRate, patientZeroCount, probTuple, animate=Tru
 
         GraphFrag = [None, None, None, None, None]
         GraphFrag[0] = CollectValueIndex(statusList, S)
-        GraphFrag[1] = CollectValueIndex(statusList, Ic)
+        GraphFrag[1] = CollectValueIndex(statusList, Ex)
         GraphFrag[2] = CollectValueIndex(statusList, If)
-        GraphFrag[3] = CollectValueIndex(statusList, Im)
+        GraphFrag[3] = CollectValueIndex(statusList, Re)
         GraphFrag[4] = CollectValueIndex(statusList, D)
 
         for i in range(len(GraphFrag)):
@@ -317,9 +315,9 @@ def main():
     # probTuple = kapa, beta, gamma, delta, epsilon, lmbda, tau
 
     # # Simulation 1 + Social distancing
-    p_Population = 5000
-    p_Date = 2000
-    p_connRate = 0.005
+    populations = 5000
+    simulate_days = 2000
+    average_friends = 25
     p_PatientZero = 3
 
     # p_kapa = 0.1 * 0.3

@@ -60,7 +60,7 @@ SEIR 모델과 SEIRS 모델의 가장 큰 차이는 시간이 지남에 따라 �
 
 SEIRD 모델은 다음과 같습니다.
 
-![Diagram indicating SEIRS model](resource\seird-explained.png)
+![Diagram indicating SEIRS model](resource/seird-explained.png)
 
 가장 주목할 만한 점은 Infected의 일부가 $w$ 의 확률로 치료되는 대신 사망한다는 점입니다. 즉 전체 인구에서 제외됩니다. 또한 Exposed의 일부가 '깜깜이 감염자'가 되어서, 어떠한 증상도 나타나지 않은 채 회복하게 됩니다.
 
@@ -69,7 +69,7 @@ SEIRD 모델은 미분방정식 기반의 SEIRS 모델을 그래프 이론을 �
 가장 주목해야 할 점은 $\beta^\ast$ 입니다. $\beta^\ast$ 는 하나의 값이 아니라 각 노드별로 다르게 결정되는 값입니다. 모든 Susceptible 노드는 해당 노드와 간선으로 연결된 노드 중에 현재 Infected 상태에 있는 노드가 하나 있을 때마다 $\beta$ 의 확률로 Exposed 상태로 바뀌되게 됩니다. 쉽게 설명하면 어떤 사람이 감염되는 이유는 친구 중에 감염된 사람이 있기 때문이며, 감염된 친구가 많을수록 그 사람도 감염되기 쉽다는 생각을 수학적으로 기술한 것입니다. 현재 그래프를 $G = (V, E)$ 라고 두면 어떤 노드 $v$ 에 대한 Infectious rate $\beta^\ast(G, v)$ 는 다음과 같습니다.
 
 $$
-\beta^\ast(G, v) = 1 - \prod_{\substack{w \in \textrm{adj}(v) \cap I}}{(1 - \beta)}
+\beta^\ast(G, v) = 1 - \prod_{\substack{w \in \textrm{adj}_G(v) \cap I}}{(1 - \beta)}
 $$
 
 (TODO : Example simulation graph attachment)

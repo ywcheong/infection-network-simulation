@@ -4,7 +4,7 @@ from infection import run_simulation
 
 # Step 1. environmental settings
 env_params = {
-    "total_populations": 5000,
+    "total_populations": 50000,
     "simulate_days": 600,
     "average_friends": 25,
     "patient_zeros": 3

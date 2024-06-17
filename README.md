@@ -1,9 +1,9 @@
 # Infection Network Simulation
 
-![Example visualized graph of the infection network simulation](resource/banner.mp4)
+![Example visualized graph of the infection network simulation](resource/banner.png)
 
 ## What is this project?
-At one time, COVID-19 spread widely. During that period, I modeled the spread of infectious diseases using graph theory for a high school project. I researched various mathematical models of infectious diseases and appropriately modified them to utilize graph theory. Additionally, this project supports visualization, allowing simulation results to be exported as images or video files.
+At one time, COVID-19 spread widely. During that period, I modeled the spread of infectious diseases using graph theory for a high school project. I researched various mathematical models of infectious diseases and appropriately modified them to utilize graph theory. Additionally, this project supports visualization, allowing simulation results to be exported as images or video files. Original presentation materials is at `resource/Infection Network.pptx`
 
 ## How to run a code?
 This project has been verified to work with Python 3.10 and uses the `pipenv` virtual environment. If `pipenv` is not installed, please run the following command first:

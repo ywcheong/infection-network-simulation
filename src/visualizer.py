@@ -1,15 +1,13 @@
-import time, pathlib
-
-import matplotlib
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
-
+import pathlib
+import time
 import networkx as nx
-
+from tqdm import tqdm
 from const import *
 
-# plt.rcParams['animation.convert_path'] = pathlib.Path(__file__) / '..' / '..' / 'dependency' / 'ffmpeg.exe'
-plt.rcParams['animation.ffmpeg_path'] = pathlib.Path(__file__) / '..' / '..' / 'dependency' / 'ffmpeg.exe'
+import matplotlib.animation as animation
+import matplotlib.pyplot as plt
+
+plt.rcParams['animation.ffmpeg_path'] = (pathlib.Path(__file__) / '..' / '..' / 'dependency' / 'ffmpeg.exe').resolve()
 
 def get_or_default(dictionary, key, default):
     return dictionary[key] if key in dictionary else default
@@ -61,7 +59,7 @@ class Visualizer:
 
         # initialize plot
         self.render_figure = None
-        self.renderClear()
+        self.render_clear()
 
         # store history : index_history[type][day] = [person1, person2, ...]
         self.index_history = [
@@ -75,7 +73,7 @@ class Visualizer:
         for person, state_type in enumerate(people_state):
             self.index_history[state_type][-1].append(person)
 
-    def renderFrame(self, day):
+    def render_frame(self, day):
         # update progress plot
         for state_type, state_line in enumerate(self.progress_plot.lines):
             state_line.set_xdata(range(day + 1))
@@ -95,7 +93,7 @@ class Visualizer:
                 ax=self.infection_plot
             )
 
-    def renderClear(self):
+    def render_clear(self):
         if self.render_figure is not None:
             plt.close(self.render_figure)
 
@@ -137,12 +135,12 @@ class Visualizer:
         ) # remove ticks
 
     def prepare_export(self):
-        output_path = pathlib.Path(__file__) / '..' / '..' / 'output'
+        output_path = (pathlib.Path(__file__) / '..' / '..' / 'output').resolve()
         if not output_path.exists():
             output_path.mkdir()
         
-        self.image_path = output_path / 'image'
-        self.video_path = output_path / 'video'
+        self.image_path = (output_path / 'image').resolve()
+        self.video_path = (output_path / 'video').resolve()
 
         if self.save_image and not self.image_path.exists():
             self.image_path.mkdir()
@@ -164,17 +162,17 @@ class Visualizer:
             self.export_live()
 
     def export_image(self, timestamp):
-        self.renderFrame(self.simulate_days)
+        self.render_frame(self.simulate_days)
         fig_path = self.image_path / f'output-image-{timestamp}.png'
         plt.savefig(fig_path)
         print(f"Image saved: {fig_path}")
-        self.renderClear()
+        self.render_clear()
 
     def make_animation(self):
         self.animation_control = animation.FuncAnimation(
                 fig = self.render_figure,
-                func = self.renderFrame,
-                frames = self.simulate_days,
+                func = self.render_frame,
+                frames = self.simulate_days + 1,
                 interval = (1000 // 30),
                 repeat = False
         )
@@ -183,9 +181,9 @@ class Visualizer:
         try:
             self.make_animation()
 
-            print("Detecting FFmpeg...")
-            FFMPEGWriter = animation.writers['ffmpeg']
-            writer = FFMPEGWriter(fps=30)
+            print(f"Detecting FFmpeg... (searching: {plt.rcParams['animation.ffmpeg_path']})")
+            ffmpeg_writer = animation.writers['ffmpeg']
+            writer = ffmpeg_writer(fps=30)
 
             print("Exporting video... May take a while...")
             self.animation_control.save(
@@ -200,9 +198,9 @@ class Visualizer:
             print("Reason: ", e)
             return
     
-        self.renderClear()
+        self.render_clear()
 
     def export_live(self):
         self.make_animation()
         plt.show()
-        self.renderClear()
+        self.render_clear()

@@ -5,7 +5,7 @@ from infection import run_simulation
 # Step 1. environmental settings
 env_params = {
     "total_populations": 5000,
-    "simulate_days": 500,
+    "simulate_days": 600,
     "average_friends": 25,
     "patient_zeros": 3
 }
@@ -46,6 +46,17 @@ scenario_three = {
     "E2R": 0.02 * 0.3
 }
 
+# scenario 4 : used for making a banner mp4
+scenario_banner = {
+    "S2E": 0.01,
+    "S2E_TAU": 0,
+    "E2I": 0.07,
+    "I2R": 0.03,
+    "R2S": 0.0056,
+    "I2D": 0.0003,
+    "E2R": 0.0002
+}
+
 # Step 3. result saving options
 export_options = {
     "save_image": True,
@@ -54,4 +65,4 @@ export_options = {
 }
 
 # you can select among scenario_one, scenario_two, scenario_three
-run_simulation(env_params, scenario_one, export_options)
+run_simulation(env_params, scenario_banner, export_options)

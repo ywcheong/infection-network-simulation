@@ -1,9 +1,7 @@
+from const import *
 import random
-
 from tqdm import tqdm
 from visualizer import Visualizer
-
-from const import *
 
 # For reproducibility!
 random.seed(1234)
@@ -26,7 +24,7 @@ def make_infection_graph(total_populations, average_friends):
 
     progress_bar = tqdm(
         total = (total_populations-1)*total_populations/2,
-        desc='Generating Infection Graph'
+        desc='Generating Infection Graph',
     )
 
     for person_a in range(total_populations):
@@ -129,7 +127,7 @@ def run_simulation(env_params, scenario_params, export_options):
     
     progress_bar = tqdm(
         total = simulate_days,
-        desc='Simulating infection'
+        desc='Simulating infection',
     )
 
     for day in range(1, simulate_days + 1):

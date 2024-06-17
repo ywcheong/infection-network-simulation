@@ -4,8 +4,8 @@ from infection import run_simulation
 
 # Step 1. environmental settings
 env_params = {
-    "total_populations": 1000,
-    "simulate_days": 200,
+    "total_populations": 5000,
+    "simulate_days": 500,
     "average_friends": 25,
     "patient_zeros": 3
 }
@@ -48,9 +48,9 @@ scenario_three = {
 
 # Step 3. result saving options
 export_options = {
-    "save_image": False,
-    "save_video" : False,
-    "real_time": True
+    "save_image": True,
+    "save_video" : True,
+    "real_time": False
 }
 
 # you can select among scenario_one, scenario_two, scenario_three

@@ -41,14 +41,14 @@ These assumptions can be represented by ordinary differential equations. The equ
 
 $$
 \begin{cases}
-    & \frac{dS}{dt} = -\beta S \frac{I}{N} + \left\{\xi R\right\} \\
+    & \frac{dS}{dt} = -\beta S \frac{I}{N} + [\xi R] \\
     & \frac{dE}{dt} = \beta S \frac{I}{N} - \sigma E \\
     & \frac{dI}{dt} = \sigma E - \gamma I \\
-    & \frac{dR}{dt} = \gamma I - \left\{\xi R\right\}\\
+    & \frac{dR}{dt} = \gamma I - [\xi R]\\
 \end{cases}
 $$
 
-The main difference between the SEIR and SEIRS models lies in whether immunity diminishes over time. The SEIR model assumes that once immunity is acquired, it lasts for life. For instance, someone who contracts measles usually does not get measles again. Therefore, the SEIR model is used when modeling diseases like measles. On the other hand, the SEIRS model is used when immunity wanes over time. For example, just because someone had a cold once doesn't mean they are immune for life. This distinction is illustrated in the diagram above with dashed lines. The SEIR model lacks dashed lines, whereas the SEIRS model includes them. Similarly, terms enclosed in curly braces in the ordinary differential equations above apply only to the SEIRS model.
+The main difference between the SEIR and SEIRS models lies in whether immunity diminishes over time. The SEIR model assumes that once immunity is acquired, it lasts for life. For instance, someone who contracts measles usually does not get measles again. Therefore, the SEIR model is used when modeling diseases like measles. On the other hand, the SEIRS model is used when immunity wanes over time. For example, just because someone had a cold once doesn't mean they are immune for life. This distinction is illustrated in the diagram above with dashed lines. The SEIR model lacks dashed lines, whereas the SEIRS model includes them. Similarly, terms enclosed in the square bracket in the ordinary differential equations above apply only to the SEIRS model.
 
 ## SEIRD Model
 
@@ -115,8 +115,8 @@ The simulation can be visualized in three ways: image, video, and real time grap
 |----------|----------|
 | `save_image` | If `True`, the simulation result will be saved as an image. |
 | `save_video` | If `True`, the simulation result will be saved as a video. |
-| `real_time` | If `True`, the simulation result will be visualized in real time. |
+| `real_time` | If `True`, the simulation result will be visualized in real time. Ignored when `save_video` is `True`. |
 
-Note that if you want to get the results faster, it is recommended to set only `save_image` to `true` only since `save_video` and `real_time` need to render every frames of the simulation.
+Note that if you want to get the results faster, it is recommended to set only `save_image` to `true` only since `save_video` and `real_time` need to render every frames of the simulation. Since of lag, `real_time` option is ignored when `save_video` is `true`.
 
 If you want to export the simulation results as a video, download `ffmpeg.exe` then move it to the `project_root/dependency/ffmpeg.exe` path. You can download the ffmpeg [here](https://ffmpeg.org/download.html). Video export is only supported on Windows. Results images will be generated in the `output/image` path while videos in the `output/video` directory.

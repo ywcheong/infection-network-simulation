@@ -1,7 +1,6 @@
-import networkx as nx
-import random
-import time
-import pathlib
+import time, random, pathlib
+import tqdm
+
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
@@ -13,34 +12,42 @@ import matplotlib.animation as animation
 random.seed(1234)
 timestamp = int(time.time())
 
-S, Ex, If, Re, D = 0, 1, 2, 3, 4
-ColorList = ['silver', 'gold', 'red', 'royalblue', 'black']
+SUSCEPTIBLE, INCUBATED, INFECTED, IMMUNED, DEATH = 0, 1, 2, 3, 4
+COLOR_LIST = ['silver', 'gold', 'red', 'royalblue', 'black']
 
-def Event(*p):
+def make_event(*p):
     '''
-    In every cases, sum of parameters MUST NOT be bigger than 1.
+    Determines the occurrence of an event based on given probabilities.
 
-    If no parameter given
-    --------
+    Parameters
+    ----------
+    *p : float
+        Probabilities of the event occurring. The sum of probabilities must not exceed 1.
+
+    Returns
+    -------
+    int
+        Returns the index of the event that occurred. Returns 0 if no event occurred.
+
+    Raises
+    ------
     AssertionError
+        If no probabilities are given or if the sum of probabilities exceeds 1.
 
-    If one parameter p given
+    Examples
     --------
-    Return True in p prob.
-    Return False in 1-p prob.
+    >>> make_event(0.2)
+    returns 1 with 20% chance. Otherwise, returns 0.
 
-    If multiple parameter p1, p2, ..., pn given
-    --------
-    Return 1 in p1 prob.
-    Return 2 in p2 prob.
-    In same way, return n in pn prob.
-    Return 0 in 1-p1-...-on prob.
+    >>> make_event(0.3, 0.4, 0.1)
+    returns 1 with 30% chance, 2 with 40% chance, and 3 with 10% chance. Otherwise, returns 0.
+
+    >>> make_event(0.1, 0.2, 0.3, 0.4)
+    returns 1 with 10% chance, 2 with 20% chance, 3 with 30% chance, and 4 with 40% chance. Otherwise, returns 0.
     '''
     assert len(p) != 0
     assert sum(p) <= 1
 
-    # 0 ~ p1 ~ p1+p2 ~ p1+p2+p3 ~ ... ~ p1+..+pn ~ 1
-    #   ^1   ^2      ^3         ^4 .. ^n         ^0
     k = random.random()
     s = 0
     for i in range(len(p)):
@@ -49,7 +56,7 @@ def Event(*p):
         s += p[i]
     return 0
 
-def GenerateRandomGraph(N, p):
+def make_random_graph(total_populations, average_friends):
     '''
     Generates random graph for infection model.
 
@@ -58,35 +65,36 @@ def GenerateRandomGraph(N, p):
     Returns adjacency-list-represntated graph structure.
 
     Parameters
-    --------
-    N : integer, total number of populations.
-        same as vertax counts of random graph.
+    ----------
+    total_populations : int
+        Total number of populations, same as the vertex count of the random graph.
 
-    p : integer, chance of edge making.
-        For every two people, they have a chance of connection of p.
-        
-    Tips
-    --------
-    if there are N people (N > 30), the average edge count E will follow
-    E ~ B(N, p) ~ N(Np, Np(1-p)) by normal distribution approximation.
+    average_friends : int
+        Average number of friends each person has.
+
+    Returns
+    -------
+    list
+        Adjacency-list-represented graph structure.
 
     Examples
     --------
-    Generating 1000 people system with average edge count E ~ B(1000, 0.2) ~ N(20, 4.42**2)
+    Generating a system with 1000 people and an average friends of 25
 
-    ```
-    graph = GenerateRandomGraph(1000, 0.02)
+    ```python
+    graph = make_random_graph(1000, 25)
     ```
     '''
-    graph = [[] for _ in range(N)]
-    for i in range(len(graph)):
-        if i % 100 == 0:
-            print(i)
-        for j in range(i+1, len(graph)):
-            if Event(p):
-                graph[i].append(j)
-                graph[j].append(i)
-    return graph
+
+    result = [[] for _ in range(total_populations)]
+    friend_prob = average_friends / total_populations
+
+    for i in range(len(result)):
+        for j in range(i+1, len(result)):
+            if make_event(friend_prob):
+                result[i].append(j)
+                result[j].append(i)
+    return result
 
 def OneStep(graph, statusByDate, dayData, probTuple):
     '''
@@ -310,53 +318,6 @@ def Simulate(N, period, connectionRate, patientZeroCount, probTuple, animate=Tru
     print("Timestamp", timestamp)
     print("*** END ***")
 
-
-def main():
-    # probTuple = kapa, beta, gamma, delta, epsilon, lmbda, tau
-
-    # # Simulation 1 + Social distancing
-    populations = 5000
-    simulate_days = 2000
-    average_friends = 25
-    p_PatientZero = 3
-
-    # p_kapa = 
-    # p_beta = 
-    # p_gamma = 
-    # p_delta = 
-    # p_epsilon = 
-    # p_lmbda = 
-    # p_tau = 
-
-    # # Simulation 1, Intuitively normal model
-    # p_kapa = 
-    # p_beta = 
-    # p_gamma = 
-    # p_delta = 
-    # p_epsilon = 
-    # p_lmbda = 
-    # p_tau = 
-
-    # # Simulation 2, Extremely high death rate(epsilon), little high rate of infection(kapa)
-    # p_kapa = 
-    # p_beta = 
-    # p_gamma = 
-    # p_delta = 
-    # p_epsilon = 
-    # p_lmbda = 
-    # p_tau = 
-
-    # Simulation 3, low rate of infection(kapa), high rate of immune loss(delta), no death(epsilon=0)
-    p_kapa = 0.03 * 0.3
-    p_beta = 0.2 * 0.3
-    p_gamma = 0.2 * 0.3
-    p_delta = 0.03 * 0.3
-    p_epsilon = 0
-    p_lmbda = 0.02 * 0.3
-    p_tau = 0.0001 * 0.3
-
-    Simulate(p_Population, p_Date, p_connRate, p_PatientZero, \
-        (p_kapa, p_beta, p_gamma, p_delta, p_epsilon, p_lmbda, p_tau), animate=False, saveImage=False, saveVideo=True)
 
 def infect_simulation():
     pass

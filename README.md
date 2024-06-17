@@ -18,13 +18,13 @@ If `pipenv` is installed, run the following command in the project root director
 pipenv sync
 ```
 
-To run the simulation, use the `Simulate()` function located in `src/infection.py`. You can check a simulation example through `src/demo.py`. The following command executes `src/demo.py`.
+To run the simulation, use the `run_simulation()` function located in `src/infection.py`. You can check a simulation example through `src/demo.py`. The following command executes `src/demo.py`.
 
 ```shell
 pipenv run python src/demo.py
 ```
 
-If you want to change the simulation parameters, provide different parameters of the `Simulate()` function. Instructions for setting the parameters are explained at the bottom of `README.md`. You can export the simulation results as images, videos, or in real time. Option settings are also explained at the bottom of the document.
+If you want to change the simulation parameters, provide different parameters of the `run_simulation()` function. Instructions for setting the parameters are explained at the bottom of `README.md`. You can export the simulation results as images, videos, or in real time. Option settings are also explained at the bottom of the document.
 
 ## Background knowledge to understand the project
 Before starting, please note that this project aimed for a proof of concept rather than academic achievement, so it has not undergone scholarly peer review. Therefore, some of the background explanations might be slightly incorrect, and there may be errors in the research methodology. Most of the background knowledge was referenced from the [SEIR/SEIRS explained article by the Institute for Disease Modeling(IDM)](https://docs.idmod.org/projects/emod-hiv/en/latest/model-seir.html).
@@ -41,10 +41,10 @@ These assumptions can be represented by ordinary differential equations. The equ
 
 $$
 \begin{cases}
-    & \frac{dS}{dt} = -\beta S \frac{I}{N} + \{\xi R\} \\
+    & \frac{dS}{dt} = -\beta S \frac{I}{N} + \left\{\xi R\right\} \\
     & \frac{dE}{dt} = \beta S \frac{I}{N} - \sigma E \\
     & \frac{dI}{dt} = \sigma E - \gamma I \\
-    & \frac{dR}{dt} = \gamma I - \{\xi R\}\\
+    & \frac{dR}{dt} = \gamma I - \left\{\xi R\right\}\\
 \end{cases}
 $$
 
@@ -79,7 +79,7 @@ $$
 (TODO : Example simulation graph attachment)
 
 ## Simulation Setup
-All parameters below are provided as arguments to the `Simulate` function in `src/infection.py`. The order does not matter.
+To run a simulation, call `run_simulation()`. It has three parameters: `env_params`, `scenario_params`, and `export_options`. Each parameter is a dictionary that contains the necessary information for the simulation. The following sections explain how to set each parameter.
 
 ### Step 1. Environment Parameters
 An error will occur if any of them are not configured. Each variable can be set as follows:
@@ -89,17 +89,17 @@ An error will occur if any of them are not configured. Each variable can be set 
 | `total_populations` | The total number of populations in the simulation. |
 | `simulate_days` | The number of days the simulation will run. |
 | `average_friends` | The average number of friends each person has. |
-| `patient_zeros` | The number of infected individuals at day 0 in the simulation. |
+| `patient_zeros` | The number of `Infected` individuals at day 0 in the simulation. |
 
 Note that it is NOT true that all the people has exactly `average_friends` number of friends. Instead, the current program is implemented as the following: The simulation initially decides whether each two person is friend or not randomly with a probability of *freind density*. *Friend density* is calculated as `average_friends / total_populations`. Therefore, the number of friends each person has is not exactly `average_friends`, but its probabilistic expectation is equivalent to `average_friends`.
 
-### Step 2. SEIRD Model Parameters
+### Step 2. Scenario Parameters
 An error will occur if any of them are not configured. Each variable can be set as follows:
 
 | Parameter Name | Explain |
 |----------|----------|
 | `S2E` | Is equal to $\beta$, **NOT** $\beta^\ast$ |
-| `S2E_tau` | Is equal to $\tau$ |
+| `S2E_TAU` | Is equal to $\tau$ |
 | `E2I` | Is equal to $\sigma$ |
 | `I2R` | Is equal to $\gamma$ |
 | `R2S` | Is equal to $\xi$ |
@@ -108,8 +108,8 @@ An error will occur if any of them are not configured. Each variable can be set 
 
 The name of each parameter is easily distinguishable since its name is an abbriviation of the transition it represents. For example, `S2E` means the transition from `Susceptible` to `Exposed`.
 
-### Step 3. Visualization Options
-The simulation can be visualized in three ways: image, video, and real time graph. The following parameters are used to set the visualization options. At least one of the parameters must be set to `True`, or you cannot access to the simulation result at all. These are optional while the default value is `False`.
+### Step 3. Export Options
+The simulation can be visualized in three ways: image, video, and real time graph. The following parameters are used to set the visualization options. These are optional while the default value is `False`. At least one of the parameters must be set to `True`, or error will occur.
 
 | Parameter Name | Explain |
 |----------|----------|

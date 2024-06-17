@@ -76,8 +76,6 @@ $$
 \beta^\ast(G, v) = (1 - \prod_{\substack{w \in \textrm{adj}_G(v) \cap I}}{(1 - \beta)}) + \tau \frac{|I|}{|N|}
 $$
 
-(TODO : Example simulation graph attachment)
-
 ## Simulation Setup
 To run a simulation, call `run_simulation()`. It has three parameters: `env_params`, `scenario_params`, and `export_options`. Each parameter is a dictionary that contains the necessary information for the simulation. The following sections explain how to set each parameter.
 

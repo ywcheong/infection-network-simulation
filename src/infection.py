@@ -70,14 +70,58 @@ def friend_infection(infection_graph, people_state, person, scenario_params):
     
     return 1 - (1 - S2E) ** infected_count
 
+def person_next_state(
+    person,
+    people_state, infection_graph, scenario_params,
+    S2E, S2E_TAU, E2I, I2R, R2S, I2D, E2R,
+    random_infection_probability
+):
+    person_state = people_state[person]
+    next_state = None
+
+    if person_state == SUSCEPTIBLE:
+        dice = throw_dice(
+            friend_infection(infection_graph, people_state, person, scenario_params) + random_infection_probability
+        )
+        if dice == 1:
+            next_state = EXPOSED
+        else:
+            next_state = SUSCEPTIBLE
+    elif person_state == EXPOSED:
+        dice = throw_dice(E2I, E2R)
+        if dice == 1:
+            next_state = INFECTED
+        elif dice == 2:
+            next_state = RECOVERED
+        else:
+            next_state = EXPOSED
+    elif person_state == INFECTED:
+        dice = throw_dice(I2R, I2D)
+        if dice == 1:
+            next_state = RECOVERED
+        elif dice == 2:
+            next_state = DEAD
+        else:
+            next_state = INFECTED
+    elif person_state == RECOVERED:
+        dice = throw_dice(R2S)
+        if dice == 1:
+            next_state = SUSCEPTIBLE
+        else:
+            next_state = RECOVERED
+    elif person_state == DEAD:
+        next_state = DEAD
+
+    return next_state
+
 def next_day(infection_graph, people_state, scenario_params):
     S2E, S2E_TAU, E2I, I2R, R2S, I2D, E2R = \
         scenario_params["S2E"], scenario_params["S2E_TAU"], scenario_params["E2I"], scenario_params["I2R"], scenario_params["R2S"], scenario_params["I2D"], scenario_params["E2R"]
 
     total_populations = len(people_state)
-    
     living_population = sum([person for person in people_state if person != DEAD])
     infected_population = sum([person for person in people_state if person == INFECTED])
+
     if living_population > 0:
         random_infection_probability = infected_population / living_population * S2E_TAU
     else:
@@ -85,40 +129,33 @@ def next_day(infection_graph, people_state, scenario_params):
 
     next_people_state = [None] * total_populations
 
+    # linear version
     for person in range(total_populations):
-        person_state = people_state[person]
-        if person_state == SUSCEPTIBLE:
-            dice = throw_dice(
-                friend_infection(infection_graph, people_state, person, scenario_params) + random_infection_probability
-            )
-            if dice == 1:
-                next_people_state[person] = EXPOSED
-            else:
-                next_people_state[person] = SUSCEPTIBLE
-        elif person_state == EXPOSED:
-            dice = throw_dice(E2I, E2R)
-            if dice == 1:
-                next_people_state[person] = INFECTED
-            elif dice == 2:
-                next_people_state[person] = RECOVERED
-            else:
-                next_people_state[person] = EXPOSED
-        elif person_state == INFECTED:
-            dice = throw_dice(I2R, I2D)
-            if dice == 1:
-                next_people_state[person] = RECOVERED
-            elif dice == 2:
-                next_people_state[person] = DEAD
-            else:
-                next_people_state[person] = INFECTED
-        elif person_state == RECOVERED:
-            dice = throw_dice(R2S)
-            if dice == 1:
-                next_people_state[person] = SUSCEPTIBLE
-            else:
-                next_people_state[person] = RECOVERED
-        elif person_state == DEAD:
-            next_people_state[person] = DEAD
+        next_people_state[person] = person_next_state(
+            person, people_state, infection_graph, scenario_params,
+            S2E, S2E_TAU, E2I, I2R, R2S, I2D, E2R,
+            random_infection_probability
+        )
+
+    # parallel version - not working
+    # with concurrent.futures.ProcessPoolExecutor() as executor:
+    #     futures = []
+
+    #     for person in range(total_populations):
+    #         futures.append( # record the job to retrieve the result later
+    #             executor.submit( # patch the job to the executor
+    #                 person_next_state, # function to be executed
+    #                 person,
+    #                 people_state, infection_graph, scenario_params,
+    #                 S2E, S2E_TAU, E2I, I2R, R2S, I2D, E2R,
+    #                 random_infection_probability
+    #             )
+    #         )
+        
+    #     # retrieve the result
+    #     for future in concurrent.futures.as_completed(futures):
+    #         person, next_state = future.result()
+    #         next_people_state[person] = next_state
 
     return next_people_state
 

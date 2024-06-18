@@ -1,4 +1,5 @@
 from const import *
+import concurrent.futures
 import random
 from tqdm import tqdm
 from visualizer import Visualizer
@@ -18,24 +19,45 @@ def throw_dice(*p):
         s += p[i]
     return 0
 
-def make_infection_graph(total_populations, average_friends):
-    result = [[] for _ in range(total_populations)]
+def request_friend(person, env_params):
+    total_populations, average_friends = env_params["total_populations"], env_params["average_friends"]
     friend_probaility = average_friends / total_populations
 
+    result = []
+
+    for friend in range(person+1, total_populations):
+        if throw_dice(friend_probaility) == 1:
+            result.append(friend)
+
+    return person, result
+
+def make_infection_graph(env_params):
+    total_populations = env_params["total_populations"]
+    
+    # Step 1 / 2 : Requesting Friends...
+    infection_graph = [[] for _ in range(total_populations)]
+
     progress_bar = tqdm(
-        total = (total_populations-1)*total_populations/2,
+        total=total_populations,
         desc='Generating Infection Graph',
     )
 
-    for person_a in range(total_populations):
-        for person_b in range(person_a + 1, total_populations):
-            if throw_dice(friend_probaility) == 1:
-                result[person_a].append(person_b)
-                result[person_b].append(person_a)
-            progress_bar.update(1)
-    progress_bar.close()
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+        futures = []
 
-    return result
+        for person in range(total_populations):
+            futures.append(executor.submit(request_friend, person, env_params))
+        
+        for future in concurrent.futures.as_completed(futures):
+            person, friend_list = future.result()
+
+            for friend in friend_list:
+                infection_graph[person].append(friend)
+                infection_graph[friend].append(person)
+
+            progress_bar.update(1)
+
+    return infection_graph
 
 def friend_infection(infection_graph, people_state, person, scenario_params):
     friend_list = infection_graph[person]
@@ -100,7 +122,9 @@ def next_day(infection_graph, people_state, scenario_params):
 
     return next_people_state
 
-def initial_state(total_populations, patient_zeros):
+def initial_state(env_params):
+    total_populations, patient_zeros = env_params["total_populations"], env_params["patient_zeros"]
+    
     day_zero_people_state = [SUSCEPTIBLE for _ in range(total_populations)]
     day_zero_patients = random.sample(range(total_populations), k=patient_zeros)
 
@@ -122,8 +146,8 @@ def run_simulation(env_params, scenario_params, export_options):
 
     print(title_text)
 
-    infection_graph = make_infection_graph(total_populations, average_friends)
-    people_state = initial_state(total_populations, patient_zeros)
+    infection_graph = make_infection_graph(env_params)
+    people_state = initial_state(env_params)
 
     visualizer = Visualizer(title_text, infection_graph, env_params, export_options)
     visualizer.insert(people_state)

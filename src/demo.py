@@ -65,4 +65,5 @@ export_options = {
 }
 
 # you can select among scenario_one, scenario_two, scenario_three
-run_simulation(env_params, scenario_banner, export_options)
+if __name__ == '__main__':
+    run_simulation(env_params, scenario_banner, export_options)

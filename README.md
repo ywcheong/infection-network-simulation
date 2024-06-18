@@ -1,6 +1,7 @@
 # Infection Network Simulation
 
-![Example visualized graph of the infection network simulation](resource/banner.png)
+[![Example visualized graph of the infection network simulation](resource/banner.png)](https://youtu.be/6Jgwik9anso)
+Click the plot to watch the demo video of the simulation.
 
 ## What is this project?
 At one time, COVID-19 spread widely. During that period, I modeled the spread of infectious diseases using graph theory for a high school project. I researched various mathematical models of infectious diseases and appropriately modified them to utilize graph theory. Additionally, this project supports visualization, allowing simulation results to be exported as images or video files. Original presentation materials is at `resource/Infection Network.pptx`

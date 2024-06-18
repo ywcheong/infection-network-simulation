@@ -7,15 +7,19 @@ from const import *
 import matplotlib.animation as animation
 import matplotlib.pyplot as plt
 
-plt.rcParams['animation.ffmpeg_path'] = (pathlib.Path(__file__) / '..' / '..' / 'dependency' / 'ffmpeg.exe').resolve()
+plt.rcParams["animation.ffmpeg_path"] = (
+    pathlib.Path(__file__) / ".." / ".." / "dependency" / "ffmpeg.exe"
+).resolve()
+
 
 def get_or_default(dictionary, key, default):
     return dictionary[key] if key in dictionary else default
 
+
 def set_default_exports(export_options):
     if export_options is None:
         raise Exception("No export options given. Simulation will not be saved.")
-    
+
     save_image = get_or_default(export_options, "save_image", False)
     save_video = get_or_default(export_options, "save_video", False)
     real_time = get_or_default(export_options, "real_time", False)
@@ -25,6 +29,7 @@ def set_default_exports(export_options):
 
     return save_image, save_video, real_time
 
+
 def graph_to_networkx(graph):
     G = nx.Graph()
     total_populations = len(graph)
@@ -33,11 +38,13 @@ def graph_to_networkx(graph):
         G.add_node(node)
         for neighbor in graph[node]:
             G.add_edge(node, neighbor)
-    
+
     return G
+
 
 def index_history_to_population(history):
     return [len(indicies) for indicies in history]
+
 
 class Visualizer:
     def __init__(self, title_text, infection_graph, env_params, export_options):
@@ -49,8 +56,9 @@ class Visualizer:
         self.total_populations = env_params["total_populations"]
 
         # store export options
-        self.save_image, self.save_video, self.real_time = \
-            set_default_exports(export_options)
+        self.save_image, self.save_video, self.real_time = set_default_exports(
+            export_options
+        )
 
         # Initialize the infection graph, but for nx
         print("Setting up the social graph...")
@@ -62,9 +70,7 @@ class Visualizer:
         self.render_clear()
 
         # store history : index_history[type][day] = [person1, person2, ...]
-        self.index_history = [
-            [], [], [], [], []
-        ]
+        self.index_history = [[], [], [], [], []]
 
     def insert(self, people_state):
         for state_type in range(5):
@@ -77,7 +83,9 @@ class Visualizer:
         # update progress plot
         for state_type, state_line in enumerate(self.progress_plot.lines):
             state_line.set_xdata(range(day + 1))
-            state_line.set_ydata(index_history_to_population(self.index_history[state_type][:day+1]))
+            state_line.set_ydata(
+                index_history_to_population(self.index_history[state_type][: day + 1])
+            )
 
         # update infection graph
         self.infection_plot.clear()
@@ -88,9 +96,9 @@ class Visualizer:
                 self.nx_infection_layout,
                 nodelist=self.index_history[state_type][day],
                 node_color=COLOR_LIST[state_type],
-                node_shape=',',
+                node_shape=",",
                 node_size=1,
-                ax=self.infection_plot
+                ax=self.infection_plot,
             )
 
     def render_clear(self):
@@ -99,7 +107,9 @@ class Visualizer:
 
         # Set the resolution of the figure
         self.width, self.height = EXPORT_RESOLUTION
-        self.render_figure = plt.figure(figsize=(self.width / 100, self.height / 100), dpi=100)
+        self.render_figure = plt.figure(
+            figsize=(self.width / 100, self.height / 100), dpi=100
+        )
 
         # Set the title of the figure
         self.render_figure.suptitle(self.title_text, fontsize=FONT_SIZE)
@@ -111,11 +121,11 @@ class Visualizer:
 
         self.progress_plot.set_xlabel("day")
         self.progress_plot.set_xlim([0, self.simulate_days])
-        
+
         self.progress_plot.set_ylabel("populations")
         self.progress_plot.set_ylim([0, self.total_populations])
 
-        self.progress_plot.grid(linestyle="--", linewidth=0.5, color='.25', zorder=-10)
+        self.progress_plot.grid(linestyle="--", linewidth=0.5, color=".25", zorder=-10)
 
         # plot initials
         self.progress_plot.plot([], [], label="Susceptible", color=COLOR_LIST[0])
@@ -124,23 +134,28 @@ class Visualizer:
         self.progress_plot.plot([], [], label="Recovered", color=COLOR_LIST[3])
         self.progress_plot.plot([], [], label="Dead", color=COLOR_LIST[4])
 
-        self.progress_plot.legend(loc='upper right')
+        self.progress_plot.legend(loc="upper right")
 
         # Social plot - infection visualize with color
         self.infection_plot.set_title("Social Graph")
         self.infection_plot.tick_params(
-            axis='both', which='both',
-            top=False, left=False, right=False, bottom=False,
-            labelbottom=False, labelleft=False
-        ) # remove ticks
+            axis="both",
+            which="both",
+            top=False,
+            left=False,
+            right=False,
+            bottom=False,
+            labelbottom=False,
+            labelleft=False,
+        )  # remove ticks
 
     def prepare_export(self):
-        output_path = (pathlib.Path(__file__) / '..' / '..' / 'output').resolve()
+        output_path = (pathlib.Path(__file__) / ".." / ".." / "output").resolve()
         if not output_path.exists():
             output_path.mkdir()
-        
-        self.image_path = (output_path / 'image').resolve()
-        self.video_path = (output_path / 'video').resolve()
+
+        self.image_path = (output_path / "image").resolve()
+        self.video_path = (output_path / "video").resolve()
 
         if self.save_image and not self.image_path.exists():
             self.image_path.mkdir()
@@ -154,41 +169,42 @@ class Visualizer:
 
         if self.save_image:
             self.export_image(timestamp)
-        
+
         if self.save_video:
             self.export_video(timestamp)
-        
+
         if not self.save_video and self.real_time:
             self.export_live()
 
     def export_image(self, timestamp):
         self.render_frame(self.simulate_days)
-        fig_path = self.image_path / f'output-image-{timestamp}.png'
+        fig_path = self.image_path / f"output-image-{timestamp}.png"
         plt.savefig(fig_path)
         print(f"Image saved: {fig_path}")
         self.render_clear()
 
     def make_animation(self):
         self.animation_control = animation.FuncAnimation(
-                fig = self.render_figure,
-                func = self.render_frame,
-                frames = self.simulate_days + 1,
-                interval = (1000 // 30),
-                repeat = False
+            fig=self.render_figure,
+            func=self.render_frame,
+            frames=self.simulate_days + 1,
+            interval=(1000 // 30),
+            repeat=False,
         )
 
     def export_video(self, timestamp):
         try:
             self.make_animation()
 
-            print(f"Detecting FFmpeg... (searching: {plt.rcParams['animation.ffmpeg_path']})")
-            ffmpeg_writer = animation.writers['ffmpeg']
+            print(
+                f"Detecting FFmpeg... (searching: {plt.rcParams['animation.ffmpeg_path']})"
+            )
+            ffmpeg_writer = animation.writers["ffmpeg"]
             writer = ffmpeg_writer(fps=30)
 
             print("Exporting video... May take a while...")
             self.animation_control.save(
-                self.video_path / f'output-video-{timestamp}.mp4',
-                writer = writer
+                self.video_path / f"output-video-{timestamp}.mp4", writer=writer
             )
 
             print(f"Video saved: {self.video_path / f'output-video-{timestamp}.mp4'}")
@@ -197,7 +213,7 @@ class Visualizer:
             print("Error: Failed to export video. Check if FFmpeg is installed.")
             print("Reason: ", e)
             return
-    
+
         self.render_clear()
 
     def export_live(self):

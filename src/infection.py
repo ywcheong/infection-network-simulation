@@ -7,6 +7,7 @@ from visualizer import Visualizer
 # For reproducibility!
 random.seed(1234)
 
+
 def throw_dice(*p):
     assert len(p) != 0
     assert sum(p) <= 1
@@ -15,31 +16,36 @@ def throw_dice(*p):
     s = 0
     for i in range(len(p)):
         if s <= k <= s + p[i]:
-            return i+1
+            return i + 1
         s += p[i]
     return 0
 
+
 def request_friend(person, env_params):
-    total_populations, average_friends = env_params["total_populations"], env_params["average_friends"]
+    total_populations, average_friends = (
+        env_params["total_populations"],
+        env_params["average_friends"],
+    )
     friend_probaility = average_friends / total_populations
 
     result = []
 
-    for friend in range(person+1, total_populations):
+    for friend in range(person + 1, total_populations):
         if throw_dice(friend_probaility) == 1:
             result.append(friend)
 
     return person, result
 
+
 def make_infection_graph(env_params):
     total_populations = env_params["total_populations"]
-    
+
     # Step 1 / 2 : Requesting Friends...
     infection_graph = [[] for _ in range(total_populations)]
 
     progress_bar = tqdm(
         total=total_populations,
-        desc='Generating Infection Graph',
+        desc="Generating Infection Graph",
     )
 
     with concurrent.futures.ProcessPoolExecutor() as executor:
@@ -47,7 +53,7 @@ def make_infection_graph(env_params):
 
         for person in range(total_populations):
             futures.append(executor.submit(request_friend, person, env_params))
-        
+
         for future in concurrent.futures.as_completed(futures):
             person, friend_list = future.result()
 
@@ -59,6 +65,7 @@ def make_infection_graph(env_params):
 
     return infection_graph
 
+
 def friend_infection(infection_graph, people_state, person, scenario_params):
     friend_list = infection_graph[person]
     infected_count = 0
@@ -67,21 +74,31 @@ def friend_infection(infection_graph, people_state, person, scenario_params):
     for friend in friend_list:
         if people_state[friend] == INFECTED:
             infected_count += 1
-    
+
     return 1 - (1 - S2E) ** infected_count
+
 
 def person_next_state(
     person,
-    people_state, infection_graph, scenario_params,
-    S2E, S2E_TAU, E2I, I2R, R2S, I2D, E2R,
-    random_infection_probability
+    people_state,
+    infection_graph,
+    scenario_params,
+    S2E,
+    S2E_TAU,
+    E2I,
+    I2R,
+    R2S,
+    I2D,
+    E2R,
+    random_infection_probability,
 ):
     person_state = people_state[person]
     next_state = None
 
     if person_state == SUSCEPTIBLE:
         dice = throw_dice(
-            friend_infection(infection_graph, people_state, person, scenario_params) + random_infection_probability
+            friend_infection(infection_graph, people_state, person, scenario_params)
+            + random_infection_probability
         )
         if dice == 1:
             next_state = EXPOSED
@@ -114,9 +131,17 @@ def person_next_state(
 
     return next_state
 
+
 def next_day(infection_graph, people_state, scenario_params):
-    S2E, S2E_TAU, E2I, I2R, R2S, I2D, E2R = \
-        scenario_params["S2E"], scenario_params["S2E_TAU"], scenario_params["E2I"], scenario_params["I2R"], scenario_params["R2S"], scenario_params["I2D"], scenario_params["E2R"]
+    S2E, S2E_TAU, E2I, I2R, R2S, I2D, E2R = (
+        scenario_params["S2E"],
+        scenario_params["S2E_TAU"],
+        scenario_params["E2I"],
+        scenario_params["I2R"],
+        scenario_params["R2S"],
+        scenario_params["I2D"],
+        scenario_params["E2R"],
+    )
 
     total_populations = len(people_state)
     living_population = sum([person for person in people_state if person != DEAD])
@@ -132,9 +157,18 @@ def next_day(infection_graph, people_state, scenario_params):
     # linear version
     for person in range(total_populations):
         next_people_state[person] = person_next_state(
-            person, people_state, infection_graph, scenario_params,
-            S2E, S2E_TAU, E2I, I2R, R2S, I2D, E2R,
-            random_infection_probability
+            person,
+            people_state,
+            infection_graph,
+            scenario_params,
+            S2E,
+            S2E_TAU,
+            E2I,
+            I2R,
+            R2S,
+            I2D,
+            E2R,
+            random_infection_probability,
         )
 
     # parallel version - not working
@@ -151,7 +185,7 @@ def next_day(infection_graph, people_state, scenario_params):
     #                 random_infection_probability
     #             )
     #         )
-        
+
     #     # retrieve the result
     #     for future in concurrent.futures.as_completed(futures):
     #         person, next_state = future.result()
@@ -159,9 +193,13 @@ def next_day(infection_graph, people_state, scenario_params):
 
     return next_people_state
 
+
 def initial_state(env_params):
-    total_populations, patient_zeros = env_params["total_populations"], env_params["patient_zeros"]
-    
+    total_populations, patient_zeros = (
+        env_params["total_populations"],
+        env_params["patient_zeros"],
+    )
+
     day_zero_people_state = [SUSCEPTIBLE for _ in range(total_populations)]
     day_zero_patients = random.sample(range(total_populations), k=patient_zeros)
 
@@ -170,16 +208,32 @@ def initial_state(env_params):
 
     return day_zero_people_state
 
-def run_simulation(env_params, scenario_params, export_options):
-    total_populations, simulate_days, average_friends, patient_zeros = \
-        env_params["total_populations"], env_params["simulate_days"], env_params["average_friends"], env_params["patient_zeros"]
-    
-    S2E, S2E_TAU, E2I, I2R, R2S, I2D, E2R = \
-        scenario_params["S2E"], scenario_params["S2E_TAU"], scenario_params["E2I"], scenario_params["I2R"], scenario_params["R2S"], scenario_params["I2D"], scenario_params["E2R"]
 
-    title_text = f"Infection Network Simulation" + \
-        "\n" + f"Populations: {total_populations}, Days: {simulate_days}, Avg. Friends: {average_friends}, P0: {patient_zeros}" + \
-        "\n" + f"S2E: {S2E}, S2E_TAU: {S2E_TAU}, E2I: {E2I}, I2R: {I2R}, R2S: {R2S}, I2D: {I2D}, E2R: {E2R}"
+def run_simulation(env_params, scenario_params, export_options):
+    total_populations, simulate_days, average_friends, patient_zeros = (
+        env_params["total_populations"],
+        env_params["simulate_days"],
+        env_params["average_friends"],
+        env_params["patient_zeros"],
+    )
+
+    S2E, S2E_TAU, E2I, I2R, R2S, I2D, E2R = (
+        scenario_params["S2E"],
+        scenario_params["S2E_TAU"],
+        scenario_params["E2I"],
+        scenario_params["I2R"],
+        scenario_params["R2S"],
+        scenario_params["I2D"],
+        scenario_params["E2R"],
+    )
+
+    title_text = (
+        f"Infection Network Simulation"
+        + "\n"
+        + f"Populations: {total_populations}, Days: {simulate_days}, Avg. Friends: {average_friends}, P0: {patient_zeros}"
+        + "\n"
+        + f"S2E: {S2E}, S2E_TAU: {S2E_TAU}, E2I: {E2I}, I2R: {I2R}, R2S: {R2S}, I2D: {I2D}, E2R: {E2R}"
+    )
 
     print(title_text)
 
@@ -188,10 +242,10 @@ def run_simulation(env_params, scenario_params, export_options):
 
     visualizer = Visualizer(title_text, infection_graph, env_params, export_options)
     visualizer.insert(people_state)
-    
+
     progress_bar = tqdm(
-        total = simulate_days,
-        desc='Simulating infection',
+        total=simulate_days,
+        desc="Simulating infection",
     )
 
     for day in range(1, simulate_days + 1):

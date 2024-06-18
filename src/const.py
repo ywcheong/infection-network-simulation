@@ -6,4 +6,4 @@ EXPORT_RESOLUTION = (1280, 720)
 FONT_SIZE = 10
 
 # plot color settings
-COLOR_LIST = ['silver', 'gold', 'red', 'royalblue', 'black']
+COLOR_LIST = ["silver", "gold", "red", "royalblue", "black"]

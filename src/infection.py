@@ -56,7 +56,10 @@ def next_day(infection_graph, people_state, scenario_params):
     
     living_population = sum([person for person in people_state if person != DEAD])
     infected_population = sum([person for person in people_state if person == INFECTED])
-    random_infection_probability = infected_population / living_population * S2E_TAU
+    if living_population > 0:
+        random_infection_probability = infected_population / living_population * S2E_TAU
+    else:
+        random_infection_probability = 0
 
     next_people_state = [None] * total_populations
 

@@ -26,6 +26,13 @@ pipenv run python src/demo.py
 
 If you want to change the simulation parameters, provide different parameters of the `run_simulation()` function. Instructions for setting the parameters are explained at the bottom of `README.md`. You can export the simulation results as images, videos, or in real time. Option settings are also explained at the bottom of the document.
 
+**IMPORTANT**: YOU MUST CALL `run_simulation()` FUNCTION IN THE `__main__` BLOCK OF THE FILE. OTHERWISE, THE SIMULATION WILL NOT RUN. FOR EXAMPLE:
+
+```python
+if __name__ == "__main__":
+    run_simulation()
+```
+
 ## Background knowledge to understand the project
 Before starting, please note that this project aimed for a proof of concept rather than academic achievement, so it has not undergone scholarly peer review. Therefore, some of the background explanations might be slightly incorrect, and there may be errors in the research methodology. Most of the background knowledge was referenced from the [SEIR/SEIRS explained article by the Institute for Disease Modeling(IDM)](https://docs.idmod.org/projects/emod-hiv/en/latest/model-seir.html).
 
